@@ -4,8 +4,6 @@
 
 An interactive 3D visualization exploring the mathematical beauty of the Fibonacci spiral and phyllotaxis patterns found throughout nature. Originally created for students in the **Learn With Lumi** educational platform, this playground demonstrates how hands-on exploration makes complex mathematical concepts intuitive and second nature.
 
-![Fibonacci Spiral Preview](https://via.placeholder.com/800x400/131924/e2e8f0?text=Fibonacci+Spiral+Visualization)
-
 ## 🎓 Educational Philosophy
 
 This visualization embodies the Learn With Lumi philosophy that **concepts become intuitive through play**. Just as Lumi, our AI learning companion, adapts to each student's unique learning style, this interactive playground allows learners to discover the golden ratio's secrets through direct manipulation and exploration.
