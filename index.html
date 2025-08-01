@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fibonacci Spiral - Interactive 3D Visualization</title>
+    <title>Fibonacci Playground by Evan Marie Carr</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         * {
@@ -43,11 +44,11 @@
             bottom: 0;
             left: 0;
             right: 0;
-            height: 8vh;
+            height: 6vh;
             display: flex;
             align-items: center;
             padding: 0 2vh;
-            background: rgba(19, 25, 36, 0.8);
+            background: rgba(19, 25, 36, 0.6);
             backdrop-filter: blur(10px);
         }
 
@@ -63,42 +64,42 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 0.8vh;
         }
 
         .slider-label {
             color: #cbd5e1;
-            font-size: 12px;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            font-size: 1.1vh;
+            text-shadow: 0 0.1vh 0.2vh rgba(0, 0, 0, 0.5);
         }
 
         .slider {
-            width: 80px;
-            height: 4px;
+            width: 8vh;
+            height: 0.4vh;
             background: #374151;
-            border-radius: 2px;
+            border-radius: 0.2vh;
             outline: none;
             -webkit-appearance: none;
         }
 
         .slider::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 16px;
-            height: 16px;
+            width: 1.6vh;
+            height: 1.6vh;
             background: #6366f1;
             border-radius: 50%;
             cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            box-shadow: 0 0.2vh 0.4vh rgba(0, 0, 0, 0.3);
         }
 
         .slider::-moz-range-thumb {
-            width: 16px;
-            height: 16px;
+            width: 1.6vh;
+            height: 1.6vh;
             background: #6366f1;
             border-radius: 50%;
             cursor: pointer;
             border: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            box-shadow: 0 0.2vh 0.4vh rgba(0, 0, 0, 0.3);
         }
 
         .animation-controls {
@@ -113,48 +114,65 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
+            gap: 0.3vh;
             background: none;
-            border: none;
+            border: 0.2vh transparent;
             color: #cbd5e1;
             cursor: pointer;
-            padding: 8px;
-            border-radius: 8px;
+            padding: 0.4vh;
+            border-radius: 0.8vh;
             transition: all 0.2s;
         }
 
         .control-button:hover {
             background: rgba(99, 102, 241, 0.2);
-            transform: translateY(-1px);
+            transform: translateY(-0.1vh);
         }
 
         .control-button.active {
-            background: rgba(99, 102, 241, 0.3);
-            color: #a78bfa;
+            background: rgba(38, 40, 138, 0.3);
+            border: 0.2vh solid #00f2ff;
+            color: #00f2ff;
         }
 
         .control-label {
-            font-size: 10px;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            font-size: 1.0vh;
+            text-shadow: 0 0.1vh 0.2vh rgba(0, 0, 0, 0.5);
+        }
+
+        .title-text {
+            font-size: 2.5vh;
+            text-shadow: 0 0.1vh 0.2vh rgba(0, 0, 0, 0.5);
+            font-weight: 500;
+            color: #00f2ff;
+            position: absolute;
+            top: 0.5vh;
+            left: 1vh;
+            z-index: 400;
+            display: flex;
+            flex-direction: column;
+            gap: 0.3vh;
+            font-family: Quicksand;
+
         }
 
         .control-icon {
-            width: 24px;
-            height: 24px;
+            width: 3vh;
+            height: 3vh;
             border-radius: 50%;
             background: #4f46e5;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            font-size: 2.5vh;
+            box-shadow: 0 0.2vh 0.4vh rgba(0, 0, 0, 0.3);
         }
 
         .modal {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0, 0, 0, 0.8);
             backdrop-filter: blur(4px);
             z-index: 1000;
             display: none;
@@ -168,56 +186,110 @@
         }
 
         .modal-content {
-            background: #1e293b;
-            border-radius: 12px;
-            max-width: 800px;
+            background: rgb(34, 30, 71);
+            border-radius: 3vh;
+            font-size: 1.5vh;
+            max-width: 100svh;
             max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            font-family: Quicksand;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+
         }
 
         .modal-header {
-            padding: 24px;
+            padding: 1.5vh 2.5vh;
             border-bottom: 1px solid #374151;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background: rgba(19, 25, 36, 0.6);
+            backdrop-filter: blur(10px);
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            border-radius: 3vh 3vh 0 0;
         }
 
         .modal-title {
-            font-size: 24px;
+            font-size: 3.5vh;
             font-weight: bold;
-            color: #f1f5f9;
+            color: #00f7ff;
         }
 
         .close-button {
             background: none;
             border: none;
-            color: #94a3b8;
+            color: #00eaff;
             cursor: pointer;
-            font-size: 24px;
-            padding: 4px;
-            border-radius: 4px;
+            font-size: 3vh;
+            padding: 1vh;
+            border-radius: 3vh;
             transition: color 0.2s;
         }
 
-        .close-button:hover {
-            color: #f1f5f9;
+        .modal-footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 16px 24px;
+            border-top: 1px solid #374151;
+            display: flex;
+            justify-content: center;
+            background: rgba(19, 25, 36, 0.6);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            border-radius: 0 0 3vh 3vh;
+        }
+
+        .modal-close-btn {
+            background: #00fff7;
+            border: none;
+            border-radius: 4vh;
+            color: rgb(30, 40, 47);
+            cursor: pointer;
+            font-size: 1.7vh;
+            padding: 0.5vh 2vh;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .modal-close-btn:hover {
+            background: hsl(179, 100%, 50%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 
         .modal-body {
-            padding: 24px;
+            height: 100%;
+            margin: 8.5vh 0 4.5vh 0;
+            padding: 3vh;
             line-height: 1.6;
+            overflow-y: auto;
+            flex: 1;
+            gap: 1vh;
+
+        }
+
+        .hr {
+            width: 100%;
+            border: 0.1vh solid rgba(80, 217, 255, 0.2);
+            margin: 3vh 0;
         }
 
         .section {
-            margin-bottom: 32px;
+            margin-bottom: 3vh;
         }
 
         .section-title {
-            font-size: 18px;
+            font-size: 2.5vh;
             font-weight: bold;
-            color: #f1f5f9;
+            color: #ffd0f4;
             margin-bottom: 16px;
         }
 
@@ -243,47 +315,29 @@
         }
 
         .formula {
-            background: #0f172a;
+            background: #1d2435;
             border: 1px solid #334155;
             border-radius: 8px;
             padding: 16px;
             margin: 16px 0;
             text-align: center;
-            font-family: 'Times New Roman', serif;
-            font-size: 16px;
-            color: #f1f5f9;
-        }
-
-        .close-tab {
-            position: absolute;
-            top: 1vh;
-            right: 1vh;
-            z-index: 20;
-            background: rgba(239, 68, 68, 0.9);
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            color: white;
-            cursor: pointer;
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        }
-
-        .close-tab:hover {
-            background: rgba(239, 68, 68, 1);
-            transform: scale(1.05);
+            font-family: 'Roboto Mono', monospace;
+            font-size: 1.8vh;
+            color: #befeff;
         }
     </style>
 </head>
+
 <body>
-    <button class="close-tab" onclick="window.close()" title="Close">×</button>
-    
+
     <div class="container" id="container">
+        <div class="title-text">
+            <p>Fibonacci Playground </p>
+            <p style="font-size: 2vh;">by Evan Marie Carr</p>
+            <a href="https://github.com/EvanMarie" target="_blank" style="color: rgb(255, 200, 253);">
+                <p style="font-size: 1.5vh;">https://github.com/EvanMarie</p>
+            </a>
+        </div>
         <div class="overlay"></div>
         <canvas id="canvas"></canvas>
 
@@ -291,7 +345,7 @@
             <div class="sliders">
                 <div class="slider-group">
                     <label class="slider-label">radius</label>
-                    <input type="range" class="slider" id="radiusSlider" min="0.5" max="3.0" step="0.01" value="1.0">
+                    <input type="range" class="slider" id="radiusSlider" min="0.5" max="3.0" step="0.01" value="1.2">
                 </div>
                 <div class="slider-group">
                     <label class="slider-label">depth</label>
@@ -333,7 +387,13 @@
                     <span class="control-label">count</span>
                 </button>
                 <button class="control-button" id="numbersBtn">
-                    <div class="control-icon">👁</div>
+                    <div class="control-icon">
+                        <svg width="2.2vh" height="2.2vh" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                            <circle cx="12" cy="12" r="3" />
+                        </svg>
+                    </div>
                     <span class="control-label">numbers</span>
                 </button>
             </div>
@@ -347,63 +407,192 @@
                 <h2 class="modal-title">Fibonacci Mandala</h2>
                 <button class="close-button" id="closeModal">×</button>
             </div>
+            <div class="modal-footer">
+                <button class="modal-close-btn" id="closeModalBottom">Close</button>
+            </div>
             <div class="modal-body">
+
                 <div class="section">
                     <h3 class="section-title">The Mathematics of Natural Patterns</h3>
                     <div class="section-content">
-                        <p>You are exploring one of the most fundamental patterns in nature - a mathematical arrangement that governs how sunflowers pack their seeds, how pinecones organize their scales, and how galaxies form their spiral arms. This is phyllotaxis, and it reveals deep connections between mathematics, physics, and biology.</p>
-                        <p><strong>What you're seeing:</strong> Each point in your spiral is positioned according to precise mathematical rules that optimize packing efficiency and resource distribution. As you interact with the controls, you're experimenting with the same principles that shape living systems.</p>
+                        <p>You are exploring one of the most fundamental patterns in nature - a mathematical arrangement
+                            that governs how sunflowers pack their seeds, how pinecones organize their scales, and how
+                            galaxies form their spiral arms. This is phyllotaxis, and it reveals deep connections
+                            between mathematics, physics, and biology.</p>
+                        <p><strong>What you're seeing:</strong> Each point in your spiral is positioned according to
+                            precise mathematical rules that optimize packing efficiency and resource distribution. As
+                            you interact with the controls, you're experimenting with the same principles that shape
+                            living systems.</p>
                     </div>
                 </div>
+
+                <hr class="hr">
 
                 <div class="section">
                     <h3 class="section-title">The Golden Angle: Nature's Optimal Solution</h3>
                     <div class="section-content">
-                        <p><strong>The fundamental question:</strong> If you were designing a sunflower, what angle should you rotate between placing each seed to achieve maximum packing efficiency?</p>
-                        <p>The answer is not intuitive. Simple fractions of a full rotation create inefficient radial spokes, but the golden angle provides optimal spiral patterns. Its "magic" comes from being the most irrational number, meaning it's the hardest to approximate with a simple fraction.</p>
+                        <p><strong>The fundamental question:</strong> If you were designing a sunflower, what angle
+                            should you rotate between placing each seed to achieve maximum packing efficiency?</p>
+                        <p>The answer is not intuitive. Simple fractions of a full rotation create inefficient radial
+                            spokes, but the golden angle provides optimal spiral patterns. Its "magic" comes from being
+                            the most irrational number, meaning it's the hardest to approximate with a simple fraction.
+                            This property ensures that as new points are added, they never align, forcing them into the
+                            tightest possible spiral.</p>
                         <div class="formula">Golden Angle = 360°/φ² ≈ 137.508°</div>
-                        <p>This angle avoids creating regular patterns at any scale, ensuring optimal space utilization as your spiral demonstrates.</p>
+                        <p>This angle avoids creating regular patterns at any scale, ensuring optimal space utilization
+                            as your spiral demonstrates. The golden angle emerges from the golden ratio φ, providing the
+                            most mathematically efficient rotation possible for growth.</p>
                     </div>
                 </div>
-
+                <hr class="hr">
                 <div class="section">
                     <h3 class="section-title">Phyllotaxis: The Universal Growth Pattern</h3>
                     <div class="section-content">
-                        <p><strong>Biological foundation:</strong> Phyllotaxis describes how plants arrange leaves, seeds, and branches to maximize access to sunlight and space. This visualization is a direct model of that process.</p>
-                        <p>The pattern follows two fundamental mathematical principles:</p>
+                        <p><strong>Biological foundation:</strong> Phyllotaxis describes how plants arrange leaves,
+                            seeds, and branches to maximize access to sunlight and space. This visualization is a direct
+                            model of that process.</p>
+                        <p>The pattern follows two fundamental mathematical principles executed for every single point:
+                        </p>
                         <p><strong>1. Angular Divergence</strong></p>
                         <div class="formula">θ = n × 137.508°</div>
-                        <p>Each new element rotates by the exact same golden angle from its predecessor.</p>
+                        <p>Each new element rotates by the exact same golden angle from its predecessor. This constant,
+                            irrational turn ensures no two elements ever align radially, preventing gaps and maximizing
+                            exposure.</p>
                         <p><strong>2. Radial Expansion</strong></p>
                         <div class="formula">r = k√n</div>
-                        <p>The distance from the center grows as the square root of the element's position number. This guarantees that the density of points remains constant as the pattern expands outward.</p>
+                        <p>The distance from the center grows as the square root of the element's position number. This
+                            specific relationship is crucial, as it guarantees that the density of points remains
+                            constant
+                            as the pattern expands outward. Use your radius slider to see how this mathematical
+                            relationship maintains perfect proportions at any scale.</p>
                     </div>
                 </div>
-
+                <hr class="hr">
                 <div class="section">
-                    <h3 class="section-title">The Fibonacci Sequence: Hidden Order</h3>
+                    <h3 class="section-title">The Fibonacci Sequence: Hidden Order in Apparent Chaos</h3>
                     <div class="section-content">
-                        <p><strong>Remarkable discovery:</strong> Although the spiral is generated using only the golden angle, the famous Fibonacci sequence emerges spontaneously in the visual pattern.</p>
+                        <p><strong>Remarkable discovery:</strong> Although the spiral is generated using only the golden
+                            angle, the famous Fibonacci sequence emerges spontaneously in the visual pattern. The model
+                            does not use the Fibonacci numbers to place points; they are a consequence of the underlying
+                            geometry.</p>
+                        <p>The Fibonacci sequence appears because its ratio is the best whole-number approximation of
+                            the
+                            golden ratio:</p>
                         <div class="formula">F_n: 1, 1, 2, 3, 5, 8, 13, 21, 34, 55...</div>
                         <div class="formula">lim(n→∞) F_{n+1}/F_n = φ ≈ 1.618</div>
-                        <p><strong>Observing Fibonacci Spirals:</strong> Activate the "Spin" animation and look carefully. You'll see two sets of interlocking spiral arms: one curving clockwise, another counterclockwise. Count the arms in each direction—these numbers will be consecutive Fibonacci numbers.</p>
+                        <p><strong>Observing Fibonacci Spirals</strong></p>
+                        <p>Activate the "Spiral Spin" animation and look carefully. You'll see two sets of interlocking
+                            spiral arms: one curving clockwise, another counterclockwise. Count the arms in each
+                            direction—these numbers will be consecutive Fibonacci numbers, such as 21 and 34. This is
+                            the
+                            hidden mathematical order made visible.</p>
+                        <p><strong>Dynamic Node Count Animation</strong></p>
+                        <p>Try the "Node Count" animation to see how the spiral grows and shrinks dynamically. This
+                            demonstrates the growth process of natural systems, where new elements are added
+                            sequentially
+                            following the golden angle. Watch as the pattern maintains its mathematical perfection at
+                            every
+                            scale, from just a few nodes to the full 500-node spiral.</p>
+                        <p><strong>Breathing Animation</strong></p>
+                        <p>The "Breathe" animation creates a natural expansion and contraction effect, mimicking the
+                            rhythmic patterns found in living systems. This demonstrates how the golden ratio governs
+                            not
+                            just static form, but dynamic processes of growth and respiration. The spiral appears to
+                            "breathe" as it scales in and out, showing how mathematical principles manifest in
+                            biological
+                            rhythms.</p>
                     </div>
                 </div>
-
+                <hr class="hr">
+                <div class="section">
+                    <h3 class="section-title">Mathematical Optimization in Living Systems</h3>
+                    <div class="section-content">
+                        <p><strong>The efficiency principle:</strong> Your spiral demonstrates how mathematical
+                            optimization principles govern biological form. Nature "solves" complex packing problems
+                            through
+                            evolutionary pressure toward these mathematical ideals.</p>
+                        <p>The golden angle optimizes multiple criteria simultaneously:</p>
+                        <ul>
+                            <li><strong>Space Utilization:</strong> Maximizes the number of elements in a given area.
+                            </li>
+                            <li><strong>Resource Access:</strong> Ensures each element has optimal access to sunlight
+                                and
+                                nutrients.</li>
+                            <li><strong>Structural Stability:</strong> Distributes mechanical stress evenly across the
+                                form.</li>
+                        </ul>
+                        <p><strong>From 2D to 3D: The Meaning of Depth</strong></p>
+                        <p>Adjusting the "Depth" slider does not break the mathematical rules; it enhances them. You are
+                            transforming the 2D model into a 3D cone, which is how this pattern appears on pinecones,
+                            pineapples, and flowering buds. The core golden angle relationship on the XY plane remains,
+                            but you are now exploring how this 2D optimization extends into a more realistic,
+                            three-dimensional growth pattern.</p>
+                    </div>
+                </div>
+                <hr class="hr">
                 <div class="section">
                     <h3 class="section-title">Scale Invariance: From Seeds to Galaxies</h3>
                     <div class="section-content">
-                        <p><strong>Universal principle:</strong> One of the most remarkable properties of this pattern is its scale invariance—it maintains its essential structure at vastly different sizes.</p>
-                        <p>Examples across scales:</p>
+                        <p><strong>Universal principle:</strong> One of the most remarkable properties of this pattern
+                            is its <strong>scale invariance</strong>—a key characteristic of fractals. It maintains its
+                            essential structure at vastly different sizes.</p>
+                        <p>Your "Radius" control demonstrates this directly. Whether the spiral represents sunflower
+                            seeds at the millimeter scale or galaxy arms at the light-year scale, the underlying
+                            mathematics remains identical.</p>
+                        <p><strong>Examples Across Scales</strong></p>
                         <ul>
-                            <li><strong>Microscopic:</strong> DNA double helix, virus shell structures</li>
-                            <li><strong>Biological:</strong> Sunflower seeds, pinecone scales, flower petals, nautilus shells</li>
-                            <li><strong>Cosmic:</strong> Hurricane structures, whirlpools, galaxy spiral arms</li>
+                            <li><strong>Microscopic:</strong> DNA double helix, virus shell structures.</li>
+                            <li><strong>Biological:</strong> Sunflower seeds, pinecone scales, flower petals, nautilus
+                                shells.</li>
+                            <li><strong>Atmospheric & Cosmic:</strong> Hurricane structures, whirlpools, galaxy spiral
+                                arms.</li>
                         </ul>
-                        <p>This reveals that the rules of efficient packing and growth are universal, applying to systems of all sizes across the cosmos.</p>
+                        <p>This reveals that the rules of efficient packing and growth are universal, applying to
+                            systems of all sizes across the cosmos.</p>
+                    </div>
+                </div>
+                <hr class="hr">
+                <div class="section">
+                    <h3 class="section-title">Dynamic Systems: Growth and Change</h3>
+                    <div class="section-content">
+                        <p><strong>Living mathematics:</strong> The "Breathe" and "Node Count" animations reveal how
+                            static mathematical patterns become dynamic in living systems.</p>
+                        <p>Real biological systems don't simply display these patterns—they grow into them over time. A
+                            sunflower doesn't create all its seeds simultaneously. Each seed appears in sequence,
+                            following
+                            the golden angle rule, a process simulated by the "Node Count" animation that shows the
+                            spiral
+                            growing from 1 to 500 nodes and back.</p>
+                        <p>The "Breathe" animation demonstrates how these patterns respond to environmental changes
+                            while
+                            maintaining their mathematical foundation. The spiral expands and contracts like a living
+                            organism, showing how the golden ratio governs not just form but also rhythm and movement.
+                            This flexibility explains why the same underlying mathematics appears in such diverse
+                            natural
+                            contexts, from cellular respiration to cosmic expansion.</p>
+                    </div>
+                </div>
+                <hr class="hr">
+                <div class="section">
+                    <h3 class="section-title">Deeper Mathematical Connections</h3>
+                    <div class="section-content">
+                        <p><strong>Beyond the obvious:</strong> Your spiral connects to advanced mathematical concepts
+                            including number theory, optimization theory, and dynamical systems.</p>
+                        <p>The complete mathematical framework encompasses several interconnected principles, all
+                            stemming
+                            from one unique number:</p>
+                        <div class="formula">Golden Ratio: φ = (1 + √5) / 2</div>
+                        <div class="formula">Continued Fraction: φ = 1 + 1/(1 + 1/(1 + 1/(1 + ...)))</div>
+                        <p>The golden ratio's continued fraction representation, composed entirely of ones, is the
+                            simplest and slowest converging of any number. This is the deep mathematical reason why it
+                            is
+                            the "most irrational" number, and therefore the perfect candidate for avoiding repetition
+                            and
+                            creating the optimal packing seen in your spiral.</p>
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 
@@ -413,7 +602,7 @@
             constructor(camera, domElement) {
                 this.camera = camera;
                 this.domElement = domElement;
-                this.target = new THREE.Vector3(0, 0, 0);
+                this.target = new THREE.Vector3(0, -4, 0);
                 this.minDistance = 10;
                 this.maxDistance = 150;
                 this.rotateSpeed = 0.005;
@@ -498,7 +687,7 @@
                 this.updateCamera();
             }
 
-            update() {}
+            update() { }
 
             dispose() {
                 this.domElement.removeEventListener("mousedown", this.onMouseDown);
@@ -512,7 +701,7 @@
         let scene, camera, renderer, controls, clock, animationId;
         let spiralGroup, lights;
         let points = [], spheres = [], tubes = [], numberSprites = [], originalPositions = [];
-        
+
         // Animation state
         let animationProgress = 0;
         let isAnimationComplete = false;
@@ -520,14 +709,14 @@
         let isSpinning = false;
         let isNodeCountAnimating = false;
         let showNumbers = false;
-        
+
         // Animation progress tracking
         let openingClosingProgress = 0;
         let spinningAngle = 0;
         let nodeCountAnimationProgress = 0;
-        
+
         // Parameters
-        let radius = 1.0;
+        let radius = 1.2;
         let depth = 1.0;
         let zoom = 108;
         let numNodes = 333;
@@ -535,7 +724,7 @@
         let previousNumNodes = 333;
 
         const defaultValues = {
-            radius: 1.0,
+            radius: 1.2,
             depth: 1.0,
             zoom: 108,
             numNodes: 333,
@@ -602,7 +791,7 @@
             originalPositions.length = 0;
 
             const numPoints = 500;
-            const initialScale = 0.5;
+            const initialScale = 0.75; // Increased from 0.5 to 0.75 (50% larger)
             const depthFactor = 0.1;
             const sphereRadius = 0.1;
             const tubeRadius = 0.02;
@@ -754,7 +943,7 @@
                     lights.fillLight.intensity = 1.2 + 0.1 * Math.sin(time * 0.4);
                 }
 
-                // Base scale
+                // Base scale - use current radius/depth values
                 const baseScaleX = radius;
                 const baseScaleY = radius;
                 const baseScaleZ = depth;
@@ -774,12 +963,17 @@
                         );
                         spiralGroup.scale.lerp(targetScale, delta * 2);
                     }
-                }
-
-                // Apply base scale when no animations are active
-                if (!isOpeningClosing && spiralGroup) {
-                    const targetScale = new THREE.Vector3(baseScaleX, baseScaleY, baseScaleZ);
-                    spiralGroup.scale.lerp(targetScale, delta * 3);
+                } else {
+                    // Apply base scale when no animations are active
+                    if (spiralGroup) {
+                        const targetScale = new THREE.Vector3(baseScaleX, baseScaleY, baseScaleZ);
+                        // Use immediate setting for the first few frames, then lerp
+                        if (clock.getElapsedTime() < 0.1) {
+                            spiralGroup.scale.copy(targetScale);
+                        } else {
+                            spiralGroup.scale.lerp(targetScale, delta * 3);
+                        }
+                    }
                 }
 
                 // Spinning animation
@@ -900,7 +1094,7 @@
                 // Camera
                 camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 1000);
                 camera.position.set(0, 0, 70);
-                camera.lookAt(0, 0, 0);
+                camera.lookAt(0, -4, 0);
 
                 // Renderer
                 renderer = new THREE.WebGLRenderer({
@@ -915,7 +1109,6 @@
                 // Spiral group
                 spiralGroup = new THREE.Group();
                 scene.add(spiralGroup);
-                spiralGroup.scale.set(radius, radius, depth);
 
                 // Lighting
                 const mainLight = new THREE.DirectionalLight(0xfff4e6, 2.0);
@@ -945,6 +1138,10 @@
                 // Generate spiral
                 createFibonacciSpiral();
 
+                // Set initial scale after creating spiral - IMPORTANT!
+                console.log("Setting initial spiral scale to:", radius, radius, depth);
+                spiralGroup.scale.set(radius, radius, depth);
+
                 // Set initial visibility
                 updateNodeVisibility(numNodes);
 
@@ -953,6 +1150,14 @@
 
                 // Event listeners
                 window.addEventListener("resize", handleResize);
+
+                // Force initial scale update
+                setTimeout(() => {
+                    if (spiralGroup) {
+                        spiralGroup.scale.set(radius, radius, depth);
+                        console.log("Forced scale update to:", spiralGroup.scale);
+                    }
+                }, 100);
 
                 // Start animation
                 animate();
@@ -982,20 +1187,28 @@
         }
 
         // Event listeners
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Initialize
             init();
 
+            // Set initial slider values to match variables
+            document.getElementById('radiusSlider').value = radius;
+            document.getElementById('depthSlider').value = depth;
+            document.getElementById('nodesSlider').value = numNodes;
+            document.getElementById('zoomSlider').value = zoom;
+            document.getElementById('speedSlider').value = animationSpeed;
+            document.getElementById('nodesLabel').textContent = `nodes: ${numNodes}`;
+
             // Slider event listeners
-            document.getElementById('radiusSlider').addEventListener('input', function(e) {
+            document.getElementById('radiusSlider').addEventListener('input', function (e) {
                 radius = parseFloat(e.target.value);
             });
 
-            document.getElementById('depthSlider').addEventListener('input', function(e) {
+            document.getElementById('depthSlider').addEventListener('input', function (e) {
                 depth = parseFloat(e.target.value);
             });
 
-            document.getElementById('nodesSlider').addEventListener('input', function(e) {
+            document.getElementById('nodesSlider').addEventListener('input', function (e) {
                 const newNodes = parseInt(e.target.value);
                 if (!isNodeCountAnimating) {
                     numNodes = newNodes;
@@ -1006,7 +1219,7 @@
                 }
             });
 
-            document.getElementById('zoomSlider').addEventListener('input', function(e) {
+            document.getElementById('zoomSlider').addEventListener('input', function (e) {
                 zoom = parseInt(e.target.value);
                 if (isAnimationComplete && controls) {
                     const invertedZoom = 160 - zoom;
@@ -1014,23 +1227,23 @@
                 }
             });
 
-            document.getElementById('speedSlider').addEventListener('input', function(e) {
+            document.getElementById('speedSlider').addEventListener('input', function (e) {
                 animationSpeed = parseFloat(e.target.value);
             });
 
             // Animation control buttons
-            document.getElementById('infoBtn').addEventListener('click', function() {
+            document.getElementById('infoBtn').addEventListener('click', function () {
                 document.getElementById('modal').classList.add('open');
             });
 
-            document.getElementById('resetBtn').addEventListener('click', function() {
+            document.getElementById('resetBtn').addEventListener('click', function () {
                 // Reset all values
                 radius = defaultValues.radius;
                 depth = defaultValues.depth;
                 zoom = defaultValues.zoom;
                 numNodes = defaultValues.numNodes;
                 animationSpeed = defaultValues.animationSpeed;
-                
+
                 // Reset sliders
                 document.getElementById('radiusSlider').value = radius;
                 document.getElementById('depthSlider').value = depth;
@@ -1038,48 +1251,48 @@
                 document.getElementById('zoomSlider').value = zoom;
                 document.getElementById('speedSlider').value = animationSpeed;
                 document.getElementById('nodesLabel').textContent = `nodes: ${numNodes}`;
-                
+
                 // Reset animations
                 isOpeningClosing = false;
                 isSpinning = false;
                 isNodeCountAnimating = false;
                 showNumbers = false;
-                
+
                 // Reset button states
                 document.querySelectorAll('.control-button').forEach(btn => {
                     if (!btn.id.includes('info') && !btn.id.includes('reset')) {
                         btn.classList.remove('active');
                     }
                 });
-                
+
                 // Reset camera
                 if (controls) {
                     controls.reset();
                 }
-                
+
                 // Reset spiral scale
                 if (spiralGroup) {
                     spiralGroup.scale.set(radius, radius, depth);
                     spiralGroup.rotation.set(0, 0, 0);
                 }
-                
+
                 // Update visibility
                 if (isAnimationComplete) {
                     updateNodeVisibility(numNodes);
                 }
             });
 
-            document.getElementById('breatheBtn').addEventListener('click', function() {
+            document.getElementById('breatheBtn').addEventListener('click', function () {
                 isOpeningClosing = !isOpeningClosing;
                 this.classList.toggle('active');
             });
 
-            document.getElementById('spinBtn').addEventListener('click', function() {
+            document.getElementById('spinBtn').addEventListener('click', function () {
                 isSpinning = !isSpinning;
                 this.classList.toggle('active');
             });
 
-            document.getElementById('nodeCountBtn').addEventListener('click', function() {
+            document.getElementById('nodeCountBtn').addEventListener('click', function () {
                 isNodeCountAnimating = !isNodeCountAnimating;
                 this.classList.toggle('active');
                 if (isNodeCountAnimating) {
@@ -1087,14 +1300,14 @@
                 }
             });
 
-            document.getElementById('numbersBtn').addEventListener('click', function() {
+            document.getElementById('numbersBtn').addEventListener('click', function () {
                 showNumbers = !showNumbers;
                 this.classList.toggle('active');
-                
+
                 if (showNumbers) {
                     // Store current values
                     previousNumNodes = numNodes;
-                    
+
                     // Find max displayable Fibonacci number
                     let maxFibIndex = 0;
                     for (let i = 0; i < 1000; i++) {
@@ -1105,7 +1318,7 @@
                             break;
                         }
                     }
-                    
+
                     // Animate to new values
                     animateValue(numNodes, maxFibIndex, 1000, (value) => {
                         numNodes = Math.round(value);
@@ -1115,7 +1328,7 @@
                             updateNodeVisibility(numNodes);
                         }
                     });
-                    
+
                     animateValue(zoom, 150, 800, (value) => {
                         zoom = Math.round(value);
                         document.getElementById('zoomSlider').value = zoom;
@@ -1134,7 +1347,7 @@
                             updateNodeVisibility(numNodes);
                         }
                     });
-                    
+
                     animateValue(zoom, defaultValues.zoom, 800, (value) => {
                         zoom = Math.round(value);
                         document.getElementById('zoomSlider').value = zoom;
@@ -1147,19 +1360,23 @@
             });
 
             // Modal controls
-            document.getElementById('closeModal').addEventListener('click', function() {
+            document.getElementById('closeModal').addEventListener('click', function () {
                 document.getElementById('modal').classList.remove('open');
             });
 
-            document.getElementById('modal').addEventListener('click', function(e) {
+            document.getElementById('closeModalBottom').addEventListener('click', function () {
+                document.getElementById('modal').classList.remove('open');
+            });
+
+            document.getElementById('modal').addEventListener('click', function (e) {
                 if (e.target === this) {
                     this.classList.remove('open');
                 }
             });
 
             // Keyboard shortcuts
-            document.addEventListener('keydown', function(e) {
-                switch(e.key) {
+            document.addEventListener('keydown', function (e) {
+                switch (e.key) {
                     case 'Escape':
                         document.getElementById('modal').classList.remove('open');
                         break;
@@ -1186,4 +1403,5 @@
         });
     </script>
 </body>
+
 </html>
