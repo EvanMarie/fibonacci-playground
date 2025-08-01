@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fibonacci Spiral - Interactive 3D Visualization</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #131924;
+            color: #e2e8f0;
+            overflow: hidden;
+        }
+
+        .container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            cursor: grab;
+        }
+
+        .container:active {
+            cursor: grabbing;
+        }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(67, 56, 202, 0.1);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 8vh;
+            display: flex;
+            align-items: center;
+            padding: 0 2vh;
+            background: rgba(19, 25, 36, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .sliders {
+            display: flex;
+            align-items: center;
+            justify-content: space-evenly;
+            width: 70%;
+            height: 100%;
+        }
+
+        .slider-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .slider-label {
+            color: #cbd5e1;
+            font-size: 12px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .slider {
+            width: 80px;
+            height: 4px;
+            background: #374151;
+            border-radius: 2px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #6366f1;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: #6366f1;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .animation-controls {
+            width: 30%;
+            height: 100%;
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+        }
+
+        .control-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            background: none;
+            border: none;
+            color: #cbd5e1;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .control-button:hover {
+            background: rgba(99, 102, 241, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .control-button.active {
+            background: rgba(99, 102, 241, 0.3);
+            color: #a78bfa;
+        }
+
+        .control-label {
+            font-size: 10px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .control-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #4f46e5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.open {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #1e293b;
+            border-radius: 12px;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+        }
+
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid #374151;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #f1f5f9;
+        }
+
+        .close-button {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 24px;
+            padding: 4px;
+            border-radius: 4px;
+            transition: color 0.2s;
+        }
+
+        .close-button:hover {
+            color: #f1f5f9;
+        }
+
+        .modal-body {
+            padding: 24px;
+            line-height: 1.6;
+        }
+
+        .section {
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #f1f5f9;
+            margin-bottom: 16px;
+        }
+
+        .section-content {
+            color: #cbd5e1;
+        }
+
+        .section-content p {
+            margin-bottom: 12px;
+        }
+
+        .section-content strong {
+            color: #e2e8f0;
+        }
+
+        .section-content ul {
+            margin: 12px 0;
+            padding-left: 20px;
+        }
+
+        .section-content li {
+            margin-bottom: 8px;
+        }
+
+        .formula {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+            text-align: center;
+            font-family: 'Times New Roman', serif;
+            font-size: 16px;
+            color: #f1f5f9;
+        }
+
+        .close-tab {
+            position: absolute;
+            top: 1vh;
+            right: 1vh;
+            z-index: 20;
+            background: rgba(239, 68, 68, 0.9);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            color: white;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .close-tab:hover {
+            background: rgba(239, 68, 68, 1);
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <button class="close-tab" onclick="window.close()" title="Close">×</button>
+    
+    <div class="container" id="container">
+        <div class="overlay"></div>
+        <canvas id="canvas"></canvas>
+
+        <div class="controls">
+            <div class="sliders">
+                <div class="slider-group">
+                    <label class="slider-label">radius</label>
+                    <input type="range" class="slider" id="radiusSlider" min="0.5" max="3.0" step="0.01" value="1.0">
+                </div>
+                <div class="slider-group">
+                    <label class="slider-label">depth</label>
+                    <input type="range" class="slider" id="depthSlider" min="0.0" max="3.0" step="0.01" value="1.0">
+                </div>
+                <div class="slider-group">
+                    <label class="slider-label" id="nodesLabel">nodes: 333</label>
+                    <input type="range" class="slider" id="nodesSlider" min="6" max="500" step="1" value="333">
+                </div>
+                <div class="slider-group">
+                    <label class="slider-label">zoom</label>
+                    <input type="range" class="slider" id="zoomSlider" min="2" max="159" step="1" value="108">
+                </div>
+                <div class="slider-group">
+                    <label class="slider-label">speed</label>
+                    <input type="range" class="slider" id="speedSlider" min="0.1" max="3.0" step="0.1" value="1.0">
+                </div>
+            </div>
+
+            <div class="animation-controls">
+                <button class="control-button" id="infoBtn">
+                    <div class="control-icon">i</div>
+                    <span class="control-label">info</span>
+                </button>
+                <button class="control-button" id="resetBtn">
+                    <div class="control-icon">↻</div>
+                    <span class="control-label">reset</span>
+                </button>
+                <button class="control-button" id="breatheBtn">
+                    <div class="control-icon">○</div>
+                    <span class="control-label">breathe</span>
+                </button>
+                <button class="control-button" id="spinBtn">
+                    <div class="control-icon">↺</div>
+                    <span class="control-label">spin</span>
+                </button>
+                <button class="control-button" id="nodeCountBtn">
+                    <div class="control-icon">#</div>
+                    <span class="control-label">count</span>
+                </button>
+                <button class="control-button" id="numbersBtn">
+                    <div class="control-icon">👁</div>
+                    <span class="control-label">numbers</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Fibonacci Mandala</h2>
+                <button class="close-button" id="closeModal">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="section">
+                    <h3 class="section-title">The Mathematics of Natural Patterns</h3>
+                    <div class="section-content">
+                        <p>You are exploring one of the most fundamental patterns in nature - a mathematical arrangement that governs how sunflowers pack their seeds, how pinecones organize their scales, and how galaxies form their spiral arms. This is phyllotaxis, and it reveals deep connections between mathematics, physics, and biology.</p>
+                        <p><strong>What you're seeing:</strong> Each point in your spiral is positioned according to precise mathematical rules that optimize packing efficiency and resource distribution. As you interact with the controls, you're experimenting with the same principles that shape living systems.</p>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3 class="section-title">The Golden Angle: Nature's Optimal Solution</h3>
+                    <div class="section-content">
+                        <p><strong>The fundamental question:</strong> If you were designing a sunflower, what angle should you rotate between placing each seed to achieve maximum packing efficiency?</p>
+                        <p>The answer is not intuitive. Simple fractions of a full rotation create inefficient radial spokes, but the golden angle provides optimal spiral patterns. Its "magic" comes from being the most irrational number, meaning it's the hardest to approximate with a simple fraction.</p>
+                        <div class="formula">Golden Angle = 360°/φ² ≈ 137.508°</div>
+                        <p>This angle avoids creating regular patterns at any scale, ensuring optimal space utilization as your spiral demonstrates.</p>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3 class="section-title">Phyllotaxis: The Universal Growth Pattern</h3>
+                    <div class="section-content">
+                        <p><strong>Biological foundation:</strong> Phyllotaxis describes how plants arrange leaves, seeds, and branches to maximize access to sunlight and space. This visualization is a direct model of that process.</p>
+                        <p>The pattern follows two fundamental mathematical principles:</p>
+                        <p><strong>1. Angular Divergence</strong></p>
+                        <div class="formula">θ = n × 137.508°</div>
+                        <p>Each new element rotates by the exact same golden angle from its predecessor.</p>
+                        <p><strong>2. Radial Expansion</strong></p>
+                        <div class="formula">r = k√n</div>
+                        <p>The distance from the center grows as the square root of the element's position number. This guarantees that the density of points remains constant as the pattern expands outward.</p>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3 class="section-title">The Fibonacci Sequence: Hidden Order</h3>
+                    <div class="section-content">
+                        <p><strong>Remarkable discovery:</strong> Although the spiral is generated using only the golden angle, the famous Fibonacci sequence emerges spontaneously in the visual pattern.</p>
+                        <div class="formula">F_n: 1, 1, 2, 3, 5, 8, 13, 21, 34, 55...</div>
+                        <div class="formula">lim(n→∞) F_{n+1}/F_n = φ ≈ 1.618</div>
+                        <p><strong>Observing Fibonacci Spirals:</strong> Activate the "Spin" animation and look carefully. You'll see two sets of interlocking spiral arms: one curving clockwise, another counterclockwise. Count the arms in each direction—these numbers will be consecutive Fibonacci numbers.</p>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3 class="section-title">Scale Invariance: From Seeds to Galaxies</h3>
+                    <div class="section-content">
+                        <p><strong>Universal principle:</strong> One of the most remarkable properties of this pattern is its scale invariance—it maintains its essential structure at vastly different sizes.</p>
+                        <p>Examples across scales:</p>
+                        <ul>
+                            <li><strong>Microscopic:</strong> DNA double helix, virus shell structures</li>
+                            <li><strong>Biological:</strong> Sunflower seeds, pinecone scales, flower petals, nautilus shells</li>
+                            <li><strong>Cosmic:</strong> Hurricane structures, whirlpools, galaxy spiral arms</li>
+                        </ul>
+                        <p>This reveals that the rules of efficient packing and growth are universal, applying to systems of all sizes across the cosmos.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Camera Controls Class
+        class CameraControls {
+            constructor(camera, domElement) {
+                this.camera = camera;
+                this.domElement = domElement;
+                this.target = new THREE.Vector3(0, 0, 0);
+                this.minDistance = 10;
+                this.maxDistance = 150;
+                this.rotateSpeed = 0.005;
+                this.zoomSpeed = 0.1;
+                this.radius = this.camera.position.distanceTo(this.target);
+                this.theta = Math.atan2(this.camera.position.z, this.camera.position.x);
+                this.phi = Math.acos(this.camera.position.y / this.radius);
+                this.isRotating = false;
+                this.lastMouseX = 0;
+                this.lastMouseY = 0;
+                this.externalZoom = null;
+
+                this.onMouseDown = this.onMouseDown.bind(this);
+                this.onMouseMove = this.onMouseMove.bind(this);
+                this.onMouseUp = this.onMouseUp.bind(this);
+                this.onWheel = this.onWheel.bind(this);
+
+                this.domElement.addEventListener("mousedown", this.onMouseDown);
+                this.domElement.addEventListener("wheel", this.onWheel, { passive: false });
+            }
+
+            onMouseDown(event) {
+                this.isRotating = true;
+                this.lastMouseX = event.clientX;
+                this.lastMouseY = event.clientY;
+                document.addEventListener("mousemove", this.onMouseMove);
+                document.addEventListener("mouseup", this.onMouseUp);
+                event.preventDefault();
+            }
+
+            onMouseMove(event) {
+                if (!this.isRotating) return;
+                const deltaX = event.clientX - this.lastMouseX;
+                const deltaY = event.clientY - this.lastMouseY;
+                this.theta += deltaX * this.rotateSpeed;
+                this.phi -= deltaY * this.rotateSpeed;
+                this.phi = Math.max(0.1, Math.min(Math.PI - 0.1, this.phi));
+                this.lastMouseX = event.clientX;
+                this.lastMouseY = event.clientY;
+                this.updateCamera();
+                event.preventDefault();
+            }
+
+            onMouseUp(event) {
+                this.isRotating = false;
+                document.removeEventListener("mousemove", this.onMouseMove);
+                document.removeEventListener("mouseup", this.onMouseUp);
+                event.preventDefault();
+            }
+
+            onWheel(event) {
+                event.preventDefault();
+                if (this.externalZoom === null) {
+                    const delta = event.deltaY > 0 ? 1 + this.zoomSpeed : 1 - this.zoomSpeed;
+                    this.radius = Math.max(this.minDistance, Math.min(this.maxDistance, this.radius * delta));
+                    this.updateCamera();
+                }
+            }
+
+            updateCamera() {
+                const distance = this.externalZoom !== null ? this.externalZoom : this.radius;
+                const x = distance * Math.sin(this.phi) * Math.cos(this.theta);
+                const y = distance * Math.cos(this.phi);
+                const z = distance * Math.sin(this.phi) * Math.sin(this.theta);
+                this.camera.position.set(x, y, z);
+                this.camera.lookAt(this.target);
+            }
+
+            setExternalZoom(zoom) {
+                this.externalZoom = zoom;
+                this.updateCamera();
+            }
+
+            reset() {
+                this.camera.position.set(0, 0, 70);
+                this.camera.lookAt(this.target);
+                this.radius = this.camera.position.distanceTo(this.target);
+                this.theta = Math.atan2(this.camera.position.z, this.camera.position.x);
+                this.phi = Math.acos(this.camera.position.y / this.radius);
+                this.externalZoom = null;
+                this.isRotating = false;
+                this.updateCamera();
+            }
+
+            update() {}
+
+            dispose() {
+                this.domElement.removeEventListener("mousedown", this.onMouseDown);
+                this.domElement.removeEventListener("wheel", this.onWheel);
+                document.removeEventListener("mousemove", this.onMouseMove);
+                document.removeEventListener("mouseup", this.onMouseUp);
+            }
+        }
+
+        // Global variables
+        let scene, camera, renderer, controls, clock, animationId;
+        let spiralGroup, lights;
+        let points = [], spheres = [], tubes = [], numberSprites = [], originalPositions = [];
+        
+        // Animation state
+        let animationProgress = 0;
+        let isAnimationComplete = false;
+        let isOpeningClosing = false;
+        let isSpinning = false;
+        let isNodeCountAnimating = false;
+        let showNumbers = false;
+        
+        // Animation progress tracking
+        let openingClosingProgress = 0;
+        let spinningAngle = 0;
+        let nodeCountAnimationProgress = 0;
+        
+        // Parameters
+        let radius = 1.0;
+        let depth = 1.0;
+        let zoom = 108;
+        let numNodes = 333;
+        let animationSpeed = 1.0;
+        let previousNumNodes = 333;
+
+        const defaultValues = {
+            radius: 1.0,
+            depth: 1.0,
+            zoom: 108,
+            numNodes: 333,
+            animationSpeed: 1.0
+        };
+
+        // Fibonacci function
+        function getFibonacciNumber(n) {
+            if (n === 0) return 1;
+            if (n === 1) return 1;
+            let a = 1, b = 1;
+            for (let i = 2; i <= n; i++) {
+                const temp = a + b;
+                a = b;
+                b = temp;
+            }
+            return b;
+        }
+
+        // Create text sprite
+        function createTextSprite(text, position) {
+            const canvas = document.createElement("canvas");
+            const context = canvas.getContext("2d");
+            canvas.width = 64;
+            canvas.height = 64;
+
+            context.fillStyle = "rgba(0, 0, 0, 0)";
+            context.fillRect(0, 0, 64, 64);
+            context.font = "bold 23px Arial";
+            context.fillStyle = "#F0F0F0";
+            context.textAlign = "center";
+            context.textBaseline = "middle";
+            context.shadowColor = "#ffffff";
+            context.shadowBlur = 2;
+            context.shadowOffsetX = 1;
+            context.shadowOffsetY = 1;
+            context.fillText(text, 32, 32);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            const spriteMaterial = new THREE.SpriteMaterial({
+                map: texture,
+                transparent: true,
+                sizeAttenuation: true,
+            });
+
+            const sprite = new THREE.Sprite(spriteMaterial);
+            sprite.position.copy(position);
+            sprite.scale.set(0.4, 0.4, 0.4);
+            sprite.visible = false;
+            return sprite;
+        }
+
+        // Create Fibonacci Spiral
+        function createFibonacciSpiral() {
+            console.log("Creating Fibonacci spiral...");
+
+            if (spiralGroup) {
+                spiralGroup.clear();
+            }
+            points.length = 0;
+            spheres.length = 0;
+            tubes.length = 0;
+            numberSprites.length = 0;
+            originalPositions.length = 0;
+
+            const numPoints = 500;
+            const initialScale = 0.5;
+            const depthFactor = 0.1;
+            const sphereRadius = 0.1;
+            const tubeRadius = 0.02;
+            const goldenAngle = Math.PI * (3 - Math.sqrt(5));
+
+            // Colors
+            const color1 = new THREE.Color(0xcf9fff);
+            const color2 = new THREE.Color(0xf984ef);
+            const color3 = new THREE.Color(0x00ffff);
+            const color4 = new THREE.Color(0xe6b3ff);
+            const sphereColor = new THREE.Color(0x9fa8da);
+
+            const sphereMaterial = new THREE.MeshStandardMaterial({
+                color: sphereColor,
+                metalness: 0.9,
+                roughness: 0.05,
+                envMapIntensity: 1.2,
+            });
+
+            for (let i = 0; i < numPoints; i++) {
+                const r = initialScale * Math.sqrt(i);
+                const angle = i * goldenAngle;
+                const x = r * Math.cos(angle);
+                const y = r * Math.sin(angle);
+                const z = i * depthFactor;
+
+                const point = new THREE.Vector3(x, y, z);
+                points.push(point);
+
+                const sphereGeometry = new THREE.SphereGeometry(sphereRadius, 16, 16);
+                const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+                sphere.position.copy(point);
+                sphere.visible = false;
+                spheres.push(sphere);
+                originalPositions.push(point.clone());
+                spiralGroup.add(sphere);
+
+                const fibNumber = getFibonacciNumber(i);
+                if (fibNumber.toString().length <= 4) {
+                    const numberSprite = createTextSprite(
+                        fibNumber.toString(),
+                        point.clone().add(new THREE.Vector3(0, 0.2, 0))
+                    );
+                    numberSprites.push(numberSprite);
+                    spiralGroup.add(numberSprite);
+                } else {
+                    const placeholderSprite = new THREE.Sprite();
+                    placeholderSprite.visible = false;
+                    numberSprites.push(placeholderSprite);
+                }
+
+                if (i > 0) {
+                    const tubeMaterialColor = new THREE.Color();
+                    const t = i / numNodes;
+                    if (t < 0.33) {
+                        tubeMaterialColor.lerpColors(color1, color2, t * 3);
+                    } else if (t < 0.67) {
+                        tubeMaterialColor.lerpColors(color2, color3, (t - 0.33) * 3);
+                    } else {
+                        tubeMaterialColor.lerpColors(color3, color4, (t - 0.67) * 3);
+                    }
+
+                    const tubeMaterial = new THREE.MeshStandardMaterial({
+                        color: tubeMaterialColor,
+                        metalness: 0.95,
+                        roughness: 0.02,
+                        envMapIntensity: 1.5,
+                    });
+
+                    const prevPoint = points[i - 1];
+                    const tubeCurve = new THREE.LineCurve3(prevPoint, point);
+                    const tubeGeometry = new THREE.TubeGeometry(tubeCurve, 2, tubeRadius, 8, false);
+                    const tube = new THREE.Mesh(tubeGeometry, tubeMaterial);
+                    tube.visible = false;
+                    tubes.push(tube);
+                    spiralGroup.add(tube);
+                }
+            }
+            console.log(`Created ${spheres.length} spheres, ${tubes.length} tubes, and ${numberSprites.length} sprites`);
+        }
+
+        // Animation loop
+        function animate() {
+            animationId = requestAnimationFrame(animate);
+            if (!clock || !renderer || !scene || !camera) return;
+
+            const delta = clock.getDelta();
+
+            if (!isAnimationComplete) {
+                animationProgress += delta / 0.5;
+                if (animationProgress >= 1) {
+                    animationProgress = 1;
+                    isAnimationComplete = true;
+                }
+
+                const targetNodes = numNodes;
+                const easedProgress = animationProgress < 0.5
+                    ? 2 * animationProgress * animationProgress
+                    : 1 - Math.pow(-2 * animationProgress + 2, 2) / 2;
+
+                const visibleCount = easedProgress * targetNodes;
+
+                for (let i = 0; i < 500; i++) {
+                    const fadeProgress = Math.max(0, Math.min(1, (visibleCount - i) / 15));
+                    const isVisible = fadeProgress > 0.1;
+
+                    if (spheres[i]) {
+                        spheres[i].visible = isVisible;
+                        if (isVisible) {
+                            const scale = 0.4 + 0.6 * fadeProgress;
+                            spheres[i].scale.set(scale, scale, scale);
+                        }
+                    }
+
+                    if (tubes[i - 1]) {
+                        tubes[i - 1].visible = isVisible;
+                        if (isVisible) {
+                            const tubeMaterial = tubes[i - 1].material;
+                            if (tubeMaterial) {
+                                tubeMaterial.opacity = fadeProgress;
+                                tubeMaterial.transparent = true;
+                            }
+                        }
+                    }
+
+                    if (numberSprites[i]) {
+                        numberSprites[i].visible = isVisible && showNumbers && fadeProgress > 0.8;
+                    }
+                }
+            } else {
+                if (controls) {
+                    controls.update();
+                }
+
+                // Sphere rotations
+                spheres.forEach((sphere, index) => {
+                    if (sphere.visible) {
+                        const rotationSpeed = 0.008 + (index % 3) * 0.004;
+                        sphere.rotation.x += rotationSpeed;
+                        sphere.rotation.y += rotationSpeed * 1.5;
+                    }
+                });
+
+                // Light animation
+                const time = clock.getElapsedTime();
+                if (lights) {
+                    lights.mainLight.intensity = 2.0 + 0.3 * Math.sin(time * 0.3);
+                    lights.specularLight.intensity = 1.5 + 0.2 * Math.cos(time * 0.5);
+                    lights.fillLight.intensity = 1.2 + 0.1 * Math.sin(time * 0.4);
+                }
+
+                // Base scale
+                const baseScaleX = radius;
+                const baseScaleY = radius;
+                const baseScaleZ = depth;
+
+                // Opening/Closing animation
+                if (isOpeningClosing) {
+                    openingClosingProgress += delta * 0.4 * animationSpeed;
+                    if (openingClosingProgress > Math.PI * 2) {
+                        openingClosingProgress = 0;
+                    }
+                    const openCloseScale = 0.3 + 0.7 * Math.sin(openingClosingProgress);
+                    if (spiralGroup) {
+                        const targetScale = new THREE.Vector3(
+                            baseScaleX * openCloseScale,
+                            baseScaleY * openCloseScale,
+                            baseScaleZ * openCloseScale
+                        );
+                        spiralGroup.scale.lerp(targetScale, delta * 2);
+                    }
+                }
+
+                // Apply base scale when no animations are active
+                if (!isOpeningClosing && spiralGroup) {
+                    const targetScale = new THREE.Vector3(baseScaleX, baseScaleY, baseScaleZ);
+                    spiralGroup.scale.lerp(targetScale, delta * 3);
+                }
+
+                // Spinning animation
+                if (isSpinning) {
+                    spinningAngle += delta * 0.5 * animationSpeed;
+                    if (spinningAngle > Math.PI * 2) {
+                        spinningAngle = 0;
+                    }
+                    if (spiralGroup) {
+                        spiralGroup.rotation.z += delta * 0.5 * animationSpeed;
+                    }
+                }
+
+                // Node count animation
+                if (isNodeCountAnimating) {
+                    nodeCountAnimationProgress += delta * 0.6 * animationSpeed;
+                    if (nodeCountAnimationProgress > Math.PI * 2) {
+                        nodeCountAnimationProgress = 0;
+                    }
+
+                    const time = nodeCountAnimationProgress;
+                    const primaryWave = Math.sin(time);
+                    const secondaryWave = Math.sin(time * 0.5) * 0.1;
+                    const combinedWave = primaryWave + secondaryWave;
+                    const normalizedValue = (combinedWave + 1) / 2;
+                    const smoothValue = normalizedValue * normalizedValue * (3 - 2 * normalizedValue);
+                    const easedValue = Math.pow(smoothValue, 0.8);
+                    const animatedNodeCount = Math.round(1 + easedValue * 499);
+
+                    const currentCount = numNodes;
+                    const targetCount = animatedNodeCount;
+                    const interpolationSpeed = delta * 4;
+                    const interpolatedCount = Math.round(
+                        currentCount + (targetCount - currentCount) * interpolationSpeed
+                    );
+
+                    numNodes = interpolatedCount;
+                    document.getElementById('nodesLabel').textContent = `nodes: ${numNodes}`;
+                    document.getElementById('nodesSlider').value = numNodes;
+
+                    updateNodeVisibility(interpolatedCount);
+                }
+            }
+
+            if (renderer && scene && camera) {
+                renderer.render(scene, camera);
+            }
+        }
+
+        // Update node visibility
+        function updateNodeVisibility(nodeCount) {
+            spheres.forEach((sphere, index) => {
+                const isVisible = index < nodeCount;
+                sphere.visible = isVisible;
+                if (isVisible) {
+                    const fadeProgress = Math.max(0, Math.min(1, (nodeCount - index) / 3));
+                    const scale = 0.6 + 0.4 * fadeProgress;
+                    sphere.scale.set(scale, scale, scale);
+                }
+            });
+
+            tubes.forEach((tube, index) => {
+                const isVisible = index < nodeCount - 1;
+                tube.visible = isVisible;
+                if (isVisible) {
+                    const tubeMaterial = tube.material;
+                    if (tubeMaterial) {
+                        const fadeProgress = Math.max(0, Math.min(1, (nodeCount - index - 1) / 2));
+                        tubeMaterial.opacity = fadeProgress;
+                        tubeMaterial.transparent = true;
+                    }
+                }
+            });
+
+            numberSprites.forEach((sprite, index) => {
+                const fibNumber = getFibonacciNumber(index);
+                const isVisible = index < nodeCount && showNumbers && fibNumber.toString().length <= 4;
+                sprite.visible = isVisible;
+                if (isVisible) {
+                    const fadeProgress = Math.max(0, Math.min(1, (nodeCount - index) / 2));
+                    const scale = 0.3 + 0.1 * fadeProgress;
+                    sprite.scale.set(scale, scale, scale);
+                }
+            });
+        }
+
+        // Handle resize
+        function handleResize() {
+            if (!camera || !renderer) return;
+            const container = document.getElementById('container');
+            if (!container) return;
+
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(width, height);
+        }
+
+        // Initialize scene
+        function init() {
+            try {
+                console.log("Starting initialization...");
+
+                const container = document.getElementById('container');
+                const canvas = document.getElementById('canvas');
+                if (!container || !canvas) return;
+
+                const width = container.clientWidth;
+                const height = container.clientHeight;
+
+                // Scene
+                scene = new THREE.Scene();
+                scene.background = new THREE.Color(0x1a1a2a);
+                scene.fog = new THREE.Fog(0x1a1a2a, 60, 200);
+
+                // Camera
+                camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 1000);
+                camera.position.set(0, 0, 70);
+                camera.lookAt(0, 0, 0);
+
+                // Renderer
+                renderer = new THREE.WebGLRenderer({
+                    antialias: false,
+                    canvas: canvas
+                });
+                renderer.setSize(width, height);
+                renderer.shadowMap.enabled = false;
+                renderer.toneMapping = THREE.NoToneMapping;
+                renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+                // Spiral group
+                spiralGroup = new THREE.Group();
+                scene.add(spiralGroup);
+                spiralGroup.scale.set(radius, radius, depth);
+
+                // Lighting
+                const mainLight = new THREE.DirectionalLight(0xfff4e6, 2.0);
+                mainLight.position.set(50, 50, 50);
+                scene.add(mainLight);
+
+                const fillLight = new THREE.DirectionalLight(0x4a90e2, 1.2);
+                fillLight.position.set(-30, -30, 30);
+                scene.add(fillLight);
+
+                const rimLight = new THREE.DirectionalLight(0xff6b6b, 0.8);
+                rimLight.position.set(0, -50, 0);
+                scene.add(rimLight);
+
+                const specularLight = new THREE.PointLight(0xffffff, 1.5, 200);
+                specularLight.position.set(0, 20, 40);
+                scene.add(specularLight);
+
+                lights = { mainLight, fillLight, rimLight, specularLight };
+
+                const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+                scene.add(ambientLight);
+
+                // Camera controls
+                controls = new CameraControls(camera, renderer.domElement);
+
+                // Generate spiral
+                createFibonacciSpiral();
+
+                // Set initial visibility
+                updateNodeVisibility(numNodes);
+
+                // Clock
+                clock = new THREE.Clock();
+
+                // Event listeners
+                window.addEventListener("resize", handleResize);
+
+                // Start animation
+                animate();
+
+                console.log("Initialization complete");
+            } catch (error) {
+                console.error("Error initializing Three.js scene:", error);
+            }
+        }
+
+        // Smooth animation functions
+        function animateValue(startValue, endValue, duration, callback) {
+            const startTime = Date.now();
+            const animate = () => {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easeProgress = progress < 0.5
+                    ? 2 * progress * progress
+                    : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+                const currentValue = startValue + (endValue - startValue) * easeProgress;
+                callback(currentValue);
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                }
+            };
+            animate();
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize
+            init();
+
+            // Slider event listeners
+            document.getElementById('radiusSlider').addEventListener('input', function(e) {
+                radius = parseFloat(e.target.value);
+            });
+
+            document.getElementById('depthSlider').addEventListener('input', function(e) {
+                depth = parseFloat(e.target.value);
+            });
+
+            document.getElementById('nodesSlider').addEventListener('input', function(e) {
+                const newNodes = parseInt(e.target.value);
+                if (!isNodeCountAnimating) {
+                    numNodes = newNodes;
+                    document.getElementById('nodesLabel').textContent = `nodes: ${numNodes}`;
+                    if (isAnimationComplete) {
+                        updateNodeVisibility(numNodes);
+                    }
+                }
+            });
+
+            document.getElementById('zoomSlider').addEventListener('input', function(e) {
+                zoom = parseInt(e.target.value);
+                if (isAnimationComplete && controls) {
+                    const invertedZoom = 160 - zoom;
+                    controls.setExternalZoom(invertedZoom);
+                }
+            });
+
+            document.getElementById('speedSlider').addEventListener('input', function(e) {
+                animationSpeed = parseFloat(e.target.value);
+            });
+
+            // Animation control buttons
+            document.getElementById('infoBtn').addEventListener('click', function() {
+                document.getElementById('modal').classList.add('open');
+            });
+
+            document.getElementById('resetBtn').addEventListener('click', function() {
+                // Reset all values
+                radius = defaultValues.radius;
+                depth = defaultValues.depth;
+                zoom = defaultValues.zoom;
+                numNodes = defaultValues.numNodes;
+                animationSpeed = defaultValues.animationSpeed;
+                
+                // Reset sliders
+                document.getElementById('radiusSlider').value = radius;
+                document.getElementById('depthSlider').value = depth;
+                document.getElementById('nodesSlider').value = numNodes;
+                document.getElementById('zoomSlider').value = zoom;
+                document.getElementById('speedSlider').value = animationSpeed;
+                document.getElementById('nodesLabel').textContent = `nodes: ${numNodes}`;
+                
+                // Reset animations
+                isOpeningClosing = false;
+                isSpinning = false;
+                isNodeCountAnimating = false;
+                showNumbers = false;
+                
+                // Reset button states
+                document.querySelectorAll('.control-button').forEach(btn => {
+                    if (!btn.id.includes('info') && !btn.id.includes('reset')) {
+                        btn.classList.remove('active');
+                    }
+                });
+                
+                // Reset camera
+                if (controls) {
+                    controls.reset();
+                }
+                
+                // Reset spiral scale
+                if (spiralGroup) {
+                    spiralGroup.scale.set(radius, radius, depth);
+                    spiralGroup.rotation.set(0, 0, 0);
+                }
+                
+                // Update visibility
+                if (isAnimationComplete) {
+                    updateNodeVisibility(numNodes);
+                }
+            });
+
+            document.getElementById('breatheBtn').addEventListener('click', function() {
+                isOpeningClosing = !isOpeningClosing;
+                this.classList.toggle('active');
+            });
+
+            document.getElementById('spinBtn').addEventListener('click', function() {
+                isSpinning = !isSpinning;
+                this.classList.toggle('active');
+            });
+
+            document.getElementById('nodeCountBtn').addEventListener('click', function() {
+                isNodeCountAnimating = !isNodeCountAnimating;
+                this.classList.toggle('active');
+                if (isNodeCountAnimating) {
+                    nodeCountAnimationProgress = 0;
+                }
+            });
+
+            document.getElementById('numbersBtn').addEventListener('click', function() {
+                showNumbers = !showNumbers;
+                this.classList.toggle('active');
+                
+                if (showNumbers) {
+                    // Store current values
+                    previousNumNodes = numNodes;
+                    
+                    // Find max displayable Fibonacci number
+                    let maxFibIndex = 0;
+                    for (let i = 0; i < 1000; i++) {
+                        const fibNumber = getFibonacciNumber(i);
+                        if (fibNumber < 10000) {
+                            maxFibIndex = i + 1;
+                        } else {
+                            break;
+                        }
+                    }
+                    
+                    // Animate to new values
+                    animateValue(numNodes, maxFibIndex, 1000, (value) => {
+                        numNodes = Math.round(value);
+                        document.getElementById('nodesLabel').textContent = `nodes: ${numNodes}`;
+                        document.getElementById('nodesSlider').value = numNodes;
+                        if (isAnimationComplete) {
+                            updateNodeVisibility(numNodes);
+                        }
+                    });
+                    
+                    animateValue(zoom, 150, 800, (value) => {
+                        zoom = Math.round(value);
+                        document.getElementById('zoomSlider').value = zoom;
+                        if (isAnimationComplete && controls) {
+                            const invertedZoom = 160 - zoom;
+                            controls.setExternalZoom(invertedZoom);
+                        }
+                    });
+                } else {
+                    // Animate back to previous values
+                    animateValue(numNodes, previousNumNodes, 1000, (value) => {
+                        numNodes = Math.round(value);
+                        document.getElementById('nodesLabel').textContent = `nodes: ${numNodes}`;
+                        document.getElementById('nodesSlider').value = numNodes;
+                        if (isAnimationComplete) {
+                            updateNodeVisibility(numNodes);
+                        }
+                    });
+                    
+                    animateValue(zoom, defaultValues.zoom, 800, (value) => {
+                        zoom = Math.round(value);
+                        document.getElementById('zoomSlider').value = zoom;
+                        if (isAnimationComplete && controls) {
+                            const invertedZoom = 160 - zoom;
+                            controls.setExternalZoom(invertedZoom);
+                        }
+                    });
+                }
+            });
+
+            // Modal controls
+            document.getElementById('closeModal').addEventListener('click', function() {
+                document.getElementById('modal').classList.remove('open');
+            });
+
+            document.getElementById('modal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('open');
+                }
+            });
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                switch(e.key) {
+                    case 'Escape':
+                        document.getElementById('modal').classList.remove('open');
+                        break;
+                    case 'i':
+                        document.getElementById('modal').classList.add('open');
+                        break;
+                    case 'r':
+                        document.getElementById('resetBtn').click();
+                        break;
+                    case 'b':
+                        document.getElementById('breatheBtn').click();
+                        break;
+                    case 's':
+                        document.getElementById('spinBtn').click();
+                        break;
+                    case 'c':
+                        document.getElementById('nodeCountBtn').click();
+                        break;
+                    case 'n':
+                        document.getElementById('numbersBtn').click();
+                        break;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
