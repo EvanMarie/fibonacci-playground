@@ -64,11 +64,11 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 0.8vh;
+            gap: 1.2vh;
         }
 
         .slider-label {
-            color: #cbd5e1;
+            color: #feb1ff;
             font-size: 1.1vh;
             text-shadow: 0 0.1vh 0.2vh rgba(0, 0, 0, 0.5);
         }
@@ -86,7 +86,7 @@
             -webkit-appearance: none;
             width: 1.6vh;
             height: 1.6vh;
-            background: #6366f1;
+            background: #00fff7;
             border-radius: 50%;
             cursor: pointer;
             box-shadow: 0 0.2vh 0.4vh rgba(0, 0, 0, 0.3);
@@ -117,7 +117,7 @@
             gap: 0.3vh;
             background: none;
             border: 0.2vh transparent;
-            color: #cbd5e1;
+            color: #feb1ff;
             cursor: pointer;
             padding: 0.4vh;
             border-radius: 0.8vh;
@@ -136,7 +136,7 @@
         }
 
         .control-label {
-            font-size: 1.0vh;
+            font-size: 0.9vh;
             text-shadow: 0 0.1vh 0.2vh rgba(0, 0, 0, 0.5);
         }
 
@@ -161,10 +161,11 @@
             height: 3vh;
             border-radius: 50%;
             background: #4f46e5;
+            border: 0.2vh solid #00f2ff;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
+            color: #fecfff;
             font-size: 2.5vh;
             box-shadow: 0 0.2vh 0.4vh rgba(0, 0, 0, 0.3);
         }
@@ -438,7 +439,7 @@
                             the most irrational number, meaning it's the hardest to approximate with a simple fraction.
                             This property ensures that as new points are added, they never align, forcing them into the
                             tightest possible spiral.</p>
-                        <div class="formula">Golden Angle = 360°/φ² ≈ 137.508°</div>
+                        <div class="formula">Golden Angle = 360°/φ<sup>2</sup> ≈ 137.508°</div>
                         <p>This angle avoids creating regular patterns at any scale, ensuring optimal space utilization
                             as your spiral demonstrates. The golden angle emerges from the golden ratio φ, providing the
                             most mathematically efficient rotation possible for growth.</p>
@@ -459,7 +460,7 @@
                             irrational turn ensures no two elements ever align radially, preventing gaps and maximizing
                             exposure.</p>
                         <p><strong>2. Radial Expansion</strong></p>
-                        <div class="formula">r = k√n</div>
+                        <div class="formula">r = k&radic;n</div>
                         <p>The distance from the center grows as the square root of the element's position number. This
                             specific relationship is crucial, as it guarantees that the density of points remains
                             constant
@@ -478,8 +479,8 @@
                         <p>The Fibonacci sequence appears because its ratio is the best whole-number approximation of
                             the
                             golden ratio:</p>
-                        <div class="formula">F_n: 1, 1, 2, 3, 5, 8, 13, 21, 34, 55...</div>
-                        <div class="formula">lim(n→∞) F_{n+1}/F_n = φ ≈ 1.618</div>
+                        <div class="formula">F<sub>n</sub>: 1, 1, 2, 3, 5, 8, 13, 21, 34, 55...</div>
+                        <div class="formula">lim<sub>n→∞</sub> F<sub>n+1</sub>/F<sub>n</sub> = φ ≈ 1.618</div>
                         <p><strong>Observing Fibonacci Spirals</strong></p>
                         <p>Activate the "Spiral Spin" animation and look carefully. You'll see two sets of interlocking
                             spiral arms: one curving clockwise, another counterclockwise. Count the arms in each
@@ -581,7 +582,7 @@
                         <p>The complete mathematical framework encompasses several interconnected principles, all
                             stemming
                             from one unique number:</p>
-                        <div class="formula">Golden Ratio: φ = (1 + √5) / 2</div>
+                        <div class="formula">Golden Ratio: φ = (1 + &radic;5) / 2</div>
                         <div class="formula">Continued Fraction: φ = 1 + 1/(1 + 1/(1 + 1/(1 + ...)))</div>
                         <p>The golden ratio's continued fraction representation, composed entirely of ones, is the
                             simplest and slowest converging of any number. This is the deep mathematical reason why it
@@ -602,7 +603,7 @@
             constructor(camera, domElement) {
                 this.camera = camera;
                 this.domElement = domElement;
-                this.target = new THREE.Vector3(0, -4, 0);
+                this.target = new THREE.Vector3(0, -2, 0);
                 this.minDistance = 10;
                 this.maxDistance = 150;
                 this.rotateSpeed = 0.005;
@@ -1094,7 +1095,7 @@
                 // Camera
                 camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 1000);
                 camera.position.set(0, 0, 70);
-                camera.lookAt(0, -4, 0);
+                camera.lookAt(0, -2, 0);
 
                 // Renderer
                 renderer = new THREE.WebGLRenderer({
@@ -1308,6 +1309,12 @@
                     // Store current values
                     previousNumNodes = numNodes;
 
+                    // Adjust target position for closer zoom
+                    if (controls) {
+                        controls.target.set(0, 0.5, 0);
+                        controls.updateCamera();
+                    }
+
                     // Find max displayable Fibonacci number
                     let maxFibIndex = 0;
                     for (let i = 0; i < 1000; i++) {
@@ -1335,9 +1342,16 @@
                         if (isAnimationComplete && controls) {
                             const invertedZoom = 160 - zoom;
                             controls.setExternalZoom(invertedZoom);
+                            controls.updateCamera();
                         }
                     });
                 } else {
+                    // Restore original target position
+                    if (controls) {
+                        controls.target.set(0, -2, 0);
+                        controls.updateCamera();
+                    }
+
                     // Animate back to previous values
                     animateValue(numNodes, previousNumNodes, 1000, (value) => {
                         numNodes = Math.round(value);
@@ -1354,6 +1368,7 @@
                         if (isAnimationComplete && controls) {
                             const invertedZoom = 160 - zoom;
                             controls.setExternalZoom(invertedZoom);
+                            controls.updateCamera();
                         }
                     });
                 }
