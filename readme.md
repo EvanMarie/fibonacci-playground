@@ -2,9 +2,22 @@
 
 **Live Demo:** [https://evanmarie.github.io/fibonacci-playground/](https://evanmarie.github.io/fibonacci-playground/)
 
-An interactive 3D visualization exploring the mathematical beauty of the Fibonacci spiral and phyllotaxis patterns found throughout nature. Experience the golden ratio in action through dynamic animations and real-time parameter control.
+An interactive 3D visualization exploring the mathematical beauty of the Fibonacci spiral and phyllotaxis patterns found throughout nature. Originally created for students in the **Learn With Lumi** educational platform, this playground demonstrates how hands-on exploration makes complex mathematical concepts intuitive and second nature.
 
 ![Fibonacci Spiral Preview](https://via.placeholder.com/800x400/131924/e2e8f0?text=Fibonacci+Spiral+Visualization)
+
+## 🎓 Educational Philosophy
+
+This visualization embodies the Learn With Lumi philosophy that **concepts become intuitive through play**. Just as Lumi, our AI learning companion, adapts to each student's unique learning style, this interactive playground allows learners to discover the golden ratio's secrets through direct manipulation and exploration.
+
+### Why Interactive Learning Matters
+Traditional mathematics education often presents the Fibonacci sequence and golden ratio as abstract formulas to memorize. This playground transforms these concepts into **living, breathing patterns** that students can:
+- **Manipulate in real-time** to see immediate cause-and-effect relationships
+- **Discover naturally** through guided exploration rather than rote learning  
+- **Connect to nature** by experiencing the same patterns found in sunflowers and galaxies
+- **Make intuitive** through repeated interaction and visual feedback
+
+When students can **play with mathematical concepts**, they develop deep understanding that goes far beyond memorization. This hands-on approach aligns perfectly with Learn With Lumi's AI-driven personalized education, where each learner's curiosity drives their educational journey.
 
 ## ✨ Features
 
@@ -101,7 +114,7 @@ This pattern appears throughout nature:
 
 ## 🛠 Technical Details
 
-### Built With
+### This Version Built With (mimicking my React/Remix version for Learn with Lumi)
 - **Three.js r128** - 3D graphics and rendering
 - **Vanilla JavaScript** - No frameworks, pure performance
 - **CSS3** - Responsive design with vh units
