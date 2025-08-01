@@ -6,7 +6,7 @@ An interactive 3D visualization exploring the mathematical beauty of the Fibonac
 
 ## 🎓 Educational Philosophy
 
-This visualization embodies the Learn With Lumi philosophy that **concepts become intuitive through play**. Just as Lumi, our AI learning companion, adapts to each student's unique learning style, this interactive playground allows learners to discover the golden ratio's secrets through direct manipulation and exploration.
+This visualization embodies the Learn with Lumi philosophy that **concepts become intuitive through play**. Just as Lumi, our AI learning companion, adapts to each student's unique learning style, this interactive playground allows learners to discover the golden ratio's secrets through direct manipulation and exploration.
 
 ### Why Interactive Learning Matters
 Traditional mathematics education often presents the Fibonacci sequence and golden ratio as abstract formulas to memorize. This playground transforms these concepts into **living, breathing patterns** that students can:
